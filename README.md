@@ -40,9 +40,9 @@ Features from Python 3.6 and 3.7 that we will be using for this version of the c
 
 ## Installation Guide
 
-To download the repository:
+This fork have fixed some issues that original repo have not fix. The oringinal repo have not been maintained for years. Download this fork:
 
-`git clone https://github.com/aimacode/aima-python.git`
+`git clone https://github.com/cbw5803/aima-python.git`
 
 Then you need to install the basic dependencies to run the project on your system:
 
