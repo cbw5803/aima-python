@@ -512,7 +512,7 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
     num_examples = len(examples)
 
     # X transpose
-    X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
+    X_col = [[example[i] for example in examples] for i in idx_i]  # vertical columns of X
 
     # add dummy
     ones = [1 for _ in range(len(examples))]
@@ -526,7 +526,7 @@ def LinearLearner(dataset, learning_rate=0.01, epochs=100):
         err = []
         # pass over all examples
         for example in examples:
-            x = [1] + example
+            x = [1] + example[:len(dataset.inputs)]
             y = np.dot(w, x)
             t = example[idx_t]
             err.append(t - y)
@@ -553,7 +553,7 @@ def LogisticLinearLeaner(dataset, learning_rate=0.01, epochs=100):
     num_examples = len(examples)
 
     # X transpose
-    X_col = [dataset.values[i] for i in idx_i]  # vertical columns of X
+    X_col = [[example[i] for example in examples] for i in idx_i]  # vertical columns of X
 
     # add dummy
     ones = [1 for _ in range(len(examples))]
@@ -1015,7 +1015,29 @@ def EnsembleLearner(learners):
 
     return train
 
-
+def AdaBoostLeaner(L, K):
+    """[Figure 18.34]"""
+    def train(dataset):
+        examples, target = dataset.examples, dataset.target
+        N = len(examples)
+        epsilon = 1. / (2 * N)
+        w = [1. / N] * N
+        h, z = [], []
+        for k in range(K):
+            h_k = L(dataset, w)
+            h.append(h_k)
+            error = sum(weight for example, weight in zip(examples, w)
+                        if example[target] != h_k(example))
+            # Avoid divide-by-0 from either 0% or 100% error rates:
+            error = np.clip(error, epsilon, 1 - epsilon)
+            for j, example in enumerate(examples):
+                if example[target] == h_k(example):
+                    w[j] *= error / (1. - error)
+            w = normalize(w)
+            z.append(np.log((1. - error) / error))
+        return weighted_majority(h, z)
+    return train
+   
 def ada_boost(dataset, L, K):
     """[Figure 18.34]"""
 
